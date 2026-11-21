@@ -7,10 +7,12 @@ import type { CaptchaChallenge } from './types.js';
 export const captchaEvents = new EventEmitter();
 captchaEvents.setMaxListeners(100);
 const monitoredPages = new WeakSet<Page>();
+const reportedChallenges = new WeakMap<Page, Set<string>>();
 
 export function monitorCaptchaOnPage(page: Page): void {
   if (process.env.CAPTCHA_MONITOR_ENABLED !== 'true' || monitoredPages.has(page)) return;
   monitoredPages.add(page);
+  reportedChallenges.set(page, new Set());
   let inspecting = false;
 
   const inspect = async () => {
@@ -77,6 +79,12 @@ export function monitorCaptchaOnPage(page: Page): void {
       });
       if (!detection.detected) return;
 
+      const challengeKey = `${pageUrl}|${detection.providers.slice().sort().join(',')}`;
+      const reported = reportedChallenges.get(page) || new Set<string>();
+      if (reported.has(challengeKey)) return;
+      reported.add(challengeKey);
+      reportedChallenges.set(page, reported);
+
       const challenge: CaptchaChallenge = {
         page,
         pageUrl,
@@ -89,6 +97,7 @@ export function monitorCaptchaOnPage(page: Page): void {
       if (!session) return;
 
       captchaEvents.emit('session', session);
+      if (session.status === 'verified') captchaEvents.emit('verified', session);
       if (session.status === 'needs_human_review') {
         captchaEvents.emit('needs_human_review', session);
         await notifyReviewWebhook(session);
