@@ -39,9 +39,30 @@ the Browserless API token in addition to the signed callback check.
 6. If no adapter confirms verification, Browserless creates a
    `needs_human_review` session and optionally sends a signed webhook.
 7. A configured site-owned verifier can send a signed callback to
-   `POST /captcha/callback`.
+   `POST /captcha/callback`. Browserless emits `captchaEvents` events named
+   `session`, `verifying`, `needs_human_review`, `verified`, `failed`, and
+   `expired` as the session changes.
 8. Session metadata can be queried at `GET /captcha/sessions` or
    `GET /captcha/sessions?sessionId=<id>`.
+
+## Consuming lifecycle events
+
+The package exports `captchaEvents` for in-process consumers:
+
+```ts
+import { captchaEvents } from '@browserless.io/browserless';
+
+captchaEvents.on('needs_human_review', (session) => {
+  // Notify your review UI or queue; do not log secrets or page contents.
+});
+
+captchaEvents.on('verified', (session) => {
+  // Your application may now continue its own site-specific workflow.
+});
+```
+
+`GET /captcha/sessions` and `POST /captcha/callback` require the normal
+Browserless API token. The callback additionally requires the HMAC signature.
 
 ## Callback contract
 
@@ -70,6 +91,5 @@ session origin.
   locations.
 - A `verified` session records a trusted verifier result; it does not itself
   submit a form or prove that a website accepted a form submission.
-- Browserless does not automatically resume a paused third-party workflow.
-  The calling application must decide what to do after receiving the verified
-  session event.
+- Browserless does not automatically resume a page or submit a form after a
+  verified event. The calling application owns that site-specific continuation.
