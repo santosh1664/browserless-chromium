@@ -18,7 +18,6 @@ export * from './detection/detector.js';
 export * from './orchestration/retry-policy.js';
 export * from './orchestration/fallback-handler.js';
 export * from './sessions/session-store.js';
-export * from './sessions/session-events.js';
 export * from './integrations/webhook-client.js';
 export * from './integrations/rejekt-client.js';
 export * from './integrations/needs-you-handler.js';
