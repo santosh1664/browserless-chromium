@@ -87,7 +87,7 @@ const PROVIDER_RULES: ProviderRule[] = [
   {
     provider: 'cloudflare',
     rules: [
-      { label: 'Cloudflare challenge platform', pattern: /cdn-cgi\/challenge-platform|__cf_chl_|cf-chl-|cf_chl_/i },
+      { label: 'Cloudflare challenge platform', pattern: /cdn-cgi\/challenge-platform|__cf_chl_|cf-chl-|cf_chl_|cf-mitigated:\s*challenge/i },
       { label: 'Cloudflare challenge page marker', pattern: /just a moment\.\.\.|attention required! \| cloudflare|cf-browser-verification/i },
     ],
   },
@@ -299,13 +299,17 @@ export function detectChallenge(
   add('resources', input.resourceUrls?.join('\n'));
   add('DOM selectors', input.selectors?.join('\n'));
   add('form field names', input.formFields?.join('\n'));
+  const challengeHeaders = Object.entries(input.headers || {}).filter(
+    ([key]) =>
+      /^(?:cf-mitigated|x-datadome|x-akamai[^-]*|x-iinfo|x-captcha[^-]*|x-waf[^-]*)$/i.test(
+        key,
+      ),
+  );
   add(
-    'response headers',
-    input.headers
-      ? Object.entries(input.headers)
-          .map(([key, value]) => `${key}: ${value}`)
-          .join('\n')
-      : undefined,
+    'challenge response headers',
+    challengeHeaders
+      .map(([key, value]) => `${key}: ${value.slice(0, 500)}`)
+      .join('\\n'),
   );
   if (input.responseStatus === 403 || input.responseStatus === 429) {
     add('HTTP status', String(input.responseStatus));
