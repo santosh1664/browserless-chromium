@@ -4,7 +4,7 @@ import type { CaptchaChallenge, CaptchaSession } from './types.js';
 
 export class CaptchaOrchestrator {
   async inspect(challenge: CaptchaChallenge): Promise<CaptchaSession | null> {
-    if (challenge.providers.length === 0) return null;
+    if (challenge.providers.length === 0 || !challenge.correlationId) return null;
 
     let origin: string;
     try {
@@ -13,19 +13,8 @@ export class CaptchaOrchestrator {
       return null;
     }
 
-    const allowedOrigins = (process.env.CAPTCHA_ALLOWED_ORIGINS || '')
-      .split(',')
-      .map((value) => value.trim())
-      .filter(Boolean)
-      .map((value) => {
-        try {
-          const parsed = new URL(value);
-          return parsed.protocol === 'https:' ? parsed.origin : '';
-        } catch {
-          return '';
-        }
-      });
-    if (!allowedOrigins.includes(origin)) return null;
+    // Challenge sessions are created only for pages carrying a Rejekt trackingId.
+    // The Browserless API token authenticates the caller; no fixed domain list is used.
 
     const safeUrl = new URL(challenge.pageUrl);
     safeUrl.search = '';
