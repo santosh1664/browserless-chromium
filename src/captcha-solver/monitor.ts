@@ -128,6 +128,7 @@ async function notifyReviewWebhook(session: {
   const secret = process.env.CAPTCHA_CALLBACK_SECRET;
   if (!endpoint || !secret) return;
   try {
+    if (new URL(endpoint).protocol !== 'https:') return;
     const { signCaptchaCallback } = await import('./verification.js');
     const payload = JSON.stringify({
       sessionId: session.id,
