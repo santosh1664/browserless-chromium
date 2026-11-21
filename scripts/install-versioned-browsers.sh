@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# install-versioned-browsers.sh <browser> [browser...]
+# install-versioned-browsers.sh chromium
 #
 # Installs each pinned Playwright version's browser binaries so older clients get
 # a matching browser. We fetch + unzip the archives ourselves instead of
@@ -14,7 +14,13 @@ if [ $# -eq 0 ]; then
   echo "Usage: $0 <browser> [browser...]"
   exit 1
 fi
-BROWSERS=("$@")
+for browser in "$@"; do
+  if [ "$browser" != "chromium" ]; then
+    echo "ERROR: this image supports Chromium only; unsupported browser: $browser" >&2
+    exit 1
+  fi
+done
+BROWSERS=("chromium")
 
 CORE_CLI="node_modules/playwright-core/cli.js"
 
@@ -140,10 +146,6 @@ clis+=("$CORE_CLI")
 failed=0
 for cli in "${clis[@]}"; do
   for browser in "${BROWSERS[@]}"; do
-    if [ "$browser" = "webkit" ] && [[ "$cli" =~ playwright-1\.([0-9]+)/cli\.js$ ]] && (( 10#${BASH_REMATCH[1]} < 61 )); then
-      echo "Skipping $browser for $cli (Ubuntu 26.04 requires Playwright 1.61+)"
-      continue
-    fi
     echo "Installing $browser for $cli..."
     install_browser "$cli" "$browser" || failed=1
   done
