@@ -1,3 +1,4 @@
+import './providers/register-defaults.js';
 export * from './types.js';
 export * from './registry.js';
 export * from './session-manager.js';
@@ -14,6 +15,7 @@ export * from './providers/hcaptcha.adapter.js';
 export * from './providers/turnstile.adapter.js';
 export * from './providers/datadome.adapter.js';
 export * from './providers/zoho.adapter.js';
+export * from './providers/register-defaults.js';
 export * from './detection/detector.js';
 export * from './orchestration/retry-policy.js';
 export * from './orchestration/fallback-handler.js';
