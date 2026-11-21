@@ -1,5 +1,6 @@
 import {
   APITags,
+  BadRequest,
   HTTPRoute,
   Methods,
   Request,
