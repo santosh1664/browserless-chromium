@@ -23,3 +23,6 @@ export * from './sessions/session-store.js';
 export * from './integrations/webhook-client.js';
 export * from './integrations/rejekt-client.js';
 export * from './integrations/needs-you-handler.js';
+
+// Educational local-only synthetic challenge demonstration.
+export * from './demo/index.js';
