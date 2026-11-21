@@ -23,6 +23,12 @@ export type ChallengeProvider =
   | 'altcha'
   | 'keycaptcha'
   | 'tencent'
+  | 'yandex'
+  | 'aliyun'
+  | 'mtcaptcha'
+  | 'botdetect'
+  | 'captcha-com'
+  | 'securimage'
   | 'zoho'
   | 'generic';
 export interface ChallengeEvidence {
@@ -162,6 +168,42 @@ const PROVIDER_RULES: ProviderRule[] = [
     ],
   },
   {
+    provider: 'yandex',
+    rules: [
+      { label: 'Yandex SmartCaptcha script or widget', pattern: /smartcaptcha(?:\.yandexcloud\.net|\.yandex\.ru)?|captcha-api\.yandex\.ru/i },
+    ],
+  },
+  {
+    provider: 'aliyun',
+    rules: [
+      { label: 'Alibaba Cloud CAPTCHA script or widget', pattern: /captcha\.aliyun\.com|aliyuncs\.com\/captcha|aliyun.?captcha/i },
+    ],
+  },
+  {
+    provider: 'mtcaptcha',
+    rules: [
+      { label: 'MTCaptcha script or widget', pattern: /mtcaptcha(?:\.com)?|mtcapcha/i },
+    ],
+  },
+  {
+    provider: 'botdetect',
+    rules: [
+      { label: 'BotDetect CAPTCHA script or widget', pattern: /botdetect(?:captcha)?|captcha\.ashx/i },
+    ],
+  },
+  {
+    provider: 'captcha-com',
+    rules: [
+      { label: 'CAPTCHA.com script or widget', pattern: /captcha\.com|captcha-com/i },
+    ],
+  },
+  {
+    provider: 'securimage',
+    rules: [
+      { label: 'Securimage native CAPTCHA marker', pattern: /securimage(?:_show)?|securimage_show\.php/i },
+    ],
+  },
+  {
     provider: 'zoho',
     rules: [
       { label: 'Zoho CAPTCHA endpoint or widget', pattern: /(?:captcha|challenge)[^\s"'<>]{0,80}zoho|zoho[^\s"'<>]{0,80}(?:captcha|challenge)|zohocaptcha|zcaptcha/i },
@@ -172,7 +214,7 @@ const GENERIC_RULES = [
   { label: 'Human-verification language', pattern: /verify (?:that )?you are human|prove you are human|human verification/i },
   { label: 'Security-check language', pattern: /complete the security check|security check required|additional verification required/i },
   { label: 'Unusual-traffic language', pattern: /unusual traffic|automated requests|suspicious activity detected/i },
-  { label: 'CAPTCHA form field or widget', pattern: /(?:captcha|challenge)[-_ ]?(?:response|token|input|image|widget)?/i },
+  { label: 'CAPTCHA form field or widget', pattern: /(?:captcha|challenge)[-_ ]?(?:response|token|input|image|widget)?|data-sitekey/i },
   { label: 'Browser integrity challenge', pattern: /checking your browser|performing security verification|enable javascript and cookies to continue/i },
 ];
 const PAGE_PROBE = () => {
