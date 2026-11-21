@@ -11,7 +11,7 @@ set -euo pipefail
 # TODO: drop this once the minimum bundled playwright-core is >= 1.60.0.
 
 if [ $# -eq 0 ]; then
-  echo "Usage: $0 <browser> [browser...]"
+  echo "Usage: $0 chromium"
   exit 1
 fi
 for browser in "$@"; do
