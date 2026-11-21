@@ -26,13 +26,13 @@ on pushes to `main` in the upstream publishing repository.
 
 release-please derives versions from Conventional Commit messages:
 
-| Commit prefix | Changelog section | Version bump |
-|---|---|---|
-| `feat:` | Features | minor |
-| `fix:` | Bug Fixes | patch |
-| `perf:` | Performance Improvements | patch |
-| `revert:` | Reverts | patch |
-| `feat!:` / `BREAKING CHANGE:` | highlighted | major |
+| Commit prefix                                      | Changelog section          | Version bump |
+| -------------------------------------------------- | -------------------------- | ------------ |
+| `feat:`                                            | Features                   | minor        |
+| `fix:`                                             | Bug Fixes                  | patch        |
+| `perf:`                                            | Performance Improvements   | patch        |
+| `revert:`                                           | Reverts                    | patch        |
+| `feat!:` / `BREAKING CHANGE:`                      | highlighted                | major        |
 | `build:`, `chore:`, `ci:`, `docs:`, `style:`, `refactor:`, `test:` | hidden | none |
 
 Use squash-merge with a Conventional Commit PR title.
@@ -50,13 +50,13 @@ node scripts/changelog-browser-versions.js --image ghcr.io/browserless/chromium:
 
 ## Required repository configuration
 
-| Secret / variable | Used by | Purpose |
-|---|---|---|
-| `vars.BROWSERLESS_ACTIONS_CLIENT_ID` | release-please.yml | GitHub App client ID |
-| `secrets.BROWSERLESS_ACTIONS_APP_PRIVATE_KEY` | release-please.yml | GitHub App private key |
-| npm trusted publishing (OIDC) | npm-publish.yml | Authenticate npm publishing |
-| `secrets.SLACK_RELEASES_WEBHOOK` | npm-publish.yml | Release notification |
-| GHCR package access | docker-publish.yml | Write access to `base` and `chromium` images |
+| Secret / variable                             | Used by            | Purpose                                |
+| ---------------------------------------------- | ------------------ | -------------------------------------- |
+| `vars.BROWSERLESS_ACTIONS_CLIENT_ID`           | release-please.yml | GitHub App client ID                   |
+| `secrets.BROWSERLESS_ACTIONS_APP_PRIVATE_KEY`  | release-please.yml | GitHub App private key                 |
+| npm trusted publishing (OIDC)                  | npm-publish.yml    | Authenticate npm publishing            |
+| `secrets.SLACK_RELEASES_WEBHOOK`               | npm-publish.yml    | Release notification                   |
+| GHCR package access                            | docker-publish.yml | Write access to `base` and `chromium` images |
 
 The GitHub App used by release-please needs contents:write and
 pull-requests:write permissions.
