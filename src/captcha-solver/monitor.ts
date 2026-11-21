@@ -2,10 +2,17 @@ import type { Page } from 'puppeteer-core';
 import { EventEmitter } from 'events';
 import { detectChallenge } from '../shared/challenge-detection.js';
 import { captchaOrchestrator } from './router.js';
+import { captchaSessionManager } from './session-manager.js';
 import type { CaptchaChallenge } from './types.js';
 
 export const captchaEvents = new EventEmitter();
 captchaEvents.setMaxListeners(100);
+captchaSessionManager.on('created', (session) => captchaEvents.emit('session', session));
+captchaSessionManager.on('updated', (session) => {
+  captchaEvents.emit('session', session);
+  captchaEvents.emit(session.status, session);
+  if (session.status === 'needs_human_review') void notifyReviewWebhook(session);
+});
 const monitoredPages = new WeakSet<Page>();
 const reportedChallenges = new WeakMap<Page, Set<string>>();
 
@@ -109,12 +116,7 @@ export function monitorCaptchaOnPage(page: Page): void {
       const session = await captchaOrchestrator.inspect(challenge);
       if (!session) return;
 
-      captchaEvents.emit('session', session);
-      if (session.status === 'verified') captchaEvents.emit('verified', session);
-      if (session.status === 'needs_human_review') {
-        captchaEvents.emit('needs_human_review', session);
-        await notifyReviewWebhook(session);
-      }
+
     } catch {
       // Navigation races and closed pages must not interrupt browser sessions.
     } finally {
