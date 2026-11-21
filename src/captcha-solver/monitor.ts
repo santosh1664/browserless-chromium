@@ -20,20 +20,74 @@ export function monitorCaptchaOnPage(page: Page): void {
       const [pageUrl, pageTitle, pageSignals] = await Promise.all([
         Promise.resolve(page.url()),
         page.title().catch(() => ''),
-        page.evaluate(() => ({\n          text: (document.body?.innerText || '').slice(0, 12000),\n          scriptUrls: Array.from(document.scripts).map((item) => item.src).filter(Boolean).slice(0, 100),\n          iframeUrls: Array.from(document.querySelectorAll('iframe')).map((item) => item.src).filter(Boolean).slice(0, 50),\n          selectors: Array.from(document.querySelectorAll('[class*=\"captcha\" i], [id*=\"captcha\" i], [class*=\"challenge\" i], [id*=\"challenge\" i], [data-sitekey]')).slice(0, 60).map((item) => [item.tagName, (item as HTMLElement).id, typeof (item as HTMLElement).className === 'string' ? (item as HTMLElement).className : '', item.getAttribute('data-sitekey') ? 'data-sitekey' : ''].filter(Boolean).join(' ')),\n          formFields: Array.from(document.querySelectorAll('input, textarea')).map((item) => [(item as HTMLInputElement).name, (item as HTMLInputElement).id, (item as HTMLInputElement).type].filter(Boolean).join(' ')).filter(Boolean).slice(0, 100),\n        })).catch(() => ({ text: '', scriptUrls: [], iframeUrls: [], selectors: [], formFields: [] })),
+        page.evaluate(() => ({
+          text: (document.body?.innerText || '').slice(0, 12000),
+          scriptUrls: Array.from(document.scripts)
+            .map((item) => item.src)
+            .filter(Boolean)
+            .slice(0, 100),
+          iframeUrls: Array.from(document.querySelectorAll('iframe'))
+            .map((item) => item.src)
+            .filter(Boolean)
+            .slice(0, 50),
+          selectors: Array.from(
+            document.querySelectorAll(
+              '[class*="captcha" i], [id*="captcha" i], [class*="challenge" i], [id*="challenge" i], [data-sitekey]',
+            ),
+          )
+            .slice(0, 60)
+            .map((item) =>
+              [
+                item.tagName,
+                (item as HTMLElement).id,
+                typeof (item as HTMLElement).className === 'string'
+                  ? (item as HTMLElement).className
+                  : '',
+                item.getAttribute('data-sitekey') ? 'data-sitekey' : '',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            ),
+          formFields: Array.from(document.querySelectorAll('input, textarea'))
+            .map((item) =>
+              [
+                (item as HTMLInputElement).name,
+                (item as HTMLInputElement).id,
+                (item as HTMLInputElement).type,
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+            .filter(Boolean)
+            .slice(0, 100),
+        })).catch(() => ({
+          text: '',
+          scriptUrls: [],
+          iframeUrls: [],
+          selectors: [],
+          formFields: [],
+        })),
       ]);
       if (!pageUrl || pageUrl === 'about:blank') return;
-      const detection = detectChallenge({ url: pageUrl, title: pageTitle, ...pageSignals });
+
+      const detection = detectChallenge({
+        url: pageUrl,
+        title: pageTitle,
+        ...pageSignals,
+      });
       if (!detection.detected) return;
 
       const challenge: CaptchaChallenge = {
-        page, pageUrl, pageTitle,
+        page,
+        pageUrl,
+        pageTitle,
         providers: detection.providers,
         evidence: detection.evidence,
         detectedAt: new Date().toISOString(),
       };
       const session = await captchaOrchestrator.inspect(challenge);
       if (!session) return;
+
       captchaEvents.emit('session', session);
       if (session.status === 'needs_human_review') {
         captchaEvents.emit('needs_human_review', session);
@@ -55,7 +109,11 @@ export function monitorCaptchaOnPage(page: Page): void {
 }
 
 async function notifyReviewWebhook(session: {
-  id: string; status: string; pageUrl: string; providers: string[]; expiresAt: string;
+  id: string;
+  status: string;
+  pageUrl: string;
+  providers: string[];
+  expiresAt: string;
 }): Promise<void> {
   const endpoint = process.env.CAPTCHA_REVIEW_WEBHOOK_URL;
   const secret = process.env.CAPTCHA_CALLBACK_SECRET;
@@ -63,12 +121,18 @@ async function notifyReviewWebhook(session: {
   try {
     const { signCaptchaCallback } = await import('./verification.js');
     const payload = JSON.stringify({
-      sessionId: session.id, status: session.status, pageUrl: session.pageUrl,
-      providers: session.providers, expiresAt: session.expiresAt,
+      sessionId: session.id,
+      status: session.status,
+      pageUrl: session.pageUrl,
+      providers: session.providers,
+      expiresAt: session.expiresAt,
     });
     await fetch(endpoint, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-captcha-signature': signCaptchaCallback(payload, secret) },
+      headers: {
+        'content-type': 'application/json',
+        'x-captcha-signature': signCaptchaCallback(payload, secret),
+      },
       body: payload,
       signal: AbortSignal.timeout(5000),
     });
