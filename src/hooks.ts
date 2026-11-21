@@ -5,6 +5,7 @@ import {
   PageHook,
 } from '@browserless.io/browserless';
 import { EventEmitter } from 'events';
+import { monitorCaptchaOnPage } from './captcha-solver/monitor.js';
 
 // KEPT for backwards compatibility reasons since some downstream
 // docker images will override these files to inject their own hook
@@ -28,6 +29,7 @@ export class Hooks extends EventEmitter {
   }
 
   page(args: PageHook): Promise<unknown> {
+    monitorCaptchaOnPage(args.page);
     return pageHook(args);
   }
 
