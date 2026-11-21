@@ -24,6 +24,12 @@ The detector currently recognizes indicators for:
 - ALTCHA
 - KeyCAPTCHA
 - Tencent CAPTCHA
+- Yandex SmartCaptcha
+- Alibaba Cloud CAPTCHA
+- MTCaptcha
+- BotDetect CAPTCHA
+- CAPTCHA.com
+- Securimage
 - Zoho CAPTCHA markers
 - Generic or site-native CAPTCHA and human-verification indicators
 
