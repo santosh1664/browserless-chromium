@@ -29,7 +29,9 @@ the Browserless API token in addition to the signed callback check.
 ## Flow
 
 1. The Browserless page hook installs a lightweight navigation monitor.
-2. After a main-frame navigation, the monitor reads the URL, title, visible
+2. Pass the caller's application/job identifier as Browserless' `trackingId`
+   query parameter. Browserless carries it through as `correlationId` in the
+   session and review webhook. After a main-frame navigation, the monitor reads the URL, title, visible
    text, script and iframe URLs, CAPTCHA-related element attributes, and form
    field names. It does not read input values, cookies, or challenge tokens.
 3. The detector classifies known provider markers and records evidence labels.
@@ -71,6 +73,7 @@ The callback body is JSON with these fields:
 ```json
 {
   "sessionId": "session UUID",
+  "correlationId": "optional caller job/application ID",
   "status": "verified",
   "pageOrigin": "https://your-owned-site.example",
   "reference": "optional verifier reference"
@@ -79,7 +82,8 @@ The callback body is JSON with these fields:
 
 Sign the exact compact JSON body with HMAC-SHA256 using
 `CAPTCHA_CALLBACK_SECRET` and send the lowercase hexadecimal digest in
-`x-captcha-signature`. The callback is rejected if the signature is invalid,
+`x-captcha-signature`. The callback should include the stored `pageOrigin` and may include
+`correlationId` for caller-side correlation. The callback is rejected if the signature is invalid,
 the session is unknown/expired, or the page origin does not match the stored
 session origin.
 
