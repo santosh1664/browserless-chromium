@@ -12,8 +12,9 @@ export interface CaptchaCallbackPayload {
 export function handleCaptchaCallback(
   rawBody: string,
   signature: string,
+  secret = process.env.CAPTCHA_CALLBACK_SECRET,
 ): { accepted: boolean; sessionId?: string; status?: string } {
-  if (!verifyCaptchaCallback(rawBody, signature)) {
+  if (!verifyCaptchaCallback(rawBody, signature, secret)) {
     return { accepted: false };
   }
 
