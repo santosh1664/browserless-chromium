@@ -206,6 +206,17 @@ describe('challenge detection', () => {
     expect(result.providers).to.include.members(['recaptcha', 'hcaptcha']);
   });
 
+  it('detects Cloudflare challenges from the cf-mitigated response header', () => {
+    const result = detectChallenge({
+      headers: {
+        'cf-mitigated': 'challenge',
+        'set-cookie': 'session=must-not-be-inspected',
+      },
+    });
+
+    expect(result.providers).to.include('cloudflare');
+  });
+
   it('does not classify an HTTP status by itself as a CAPTCHA', () => {
     const result = detectChallenge({
       url: 'https://example.com/jobs',
