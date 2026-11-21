@@ -41,13 +41,14 @@ describe('synthetic CAPTCHA demo', () => {
     expect(second.attemptsRemaining).to.equal(0);
   });
 
-  it('expires challenges after their TTL', () => {
+  it('expires challenges after their TTL', async () => {
     const service = new SyntheticCaptchaDemoService({
       enabled: true,
       ttlMs: 1,
     });
     const challenge = service.createChallenge();
 
+    await new Promise(resolve => setTimeout(resolve, 5));
     const result = service.verifyAnswer(challenge.id, '1');
     expect(result.status).to.equal('expired');
     expect(result.accepted).to.equal(false);
