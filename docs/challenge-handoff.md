@@ -42,7 +42,7 @@ human-verification indicators but the vendor could not be identified.
 
 The page helper collects the URL, title, a bounded amount of visible page text,
 script and iframe URLs, and CAPTCHA-related DOM attributes. It does not read
-cookie values, form values, response tokens, or interact with challenge UI.
+cookies, form values, response tokens, or interact with challenge UI.
 
 ```ts
 import { detectChallengeOnPage } from '@browserless.io/browserless';
@@ -60,7 +60,7 @@ if (challenge.requiresHumanReview) {
 ## Classify supplied evidence
 
 For applications that already collect page metadata, call the pure classifier
-directly. Pass cookie names only, never cookie values.
+directly. Do not pass cookies, form values, authorization headers, or challenge tokens.
 
 ```ts
 import { detectChallenge } from '@browserless.io/browserless';
