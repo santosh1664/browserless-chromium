@@ -5,6 +5,7 @@ export interface CaptchaCallbackPayload {
   sessionId: string;
   status: 'verified' | 'failed' | 'needs_human_review';
   pageOrigin: string;
+  correlationId?: string;
   reference?: string;
 }
 
@@ -34,6 +35,7 @@ export function handleCaptchaCallback(
   if (
     !current ||
     current.pageOrigin !== payload.pageOrigin ||
+    (payload.correlationId !== undefined && current.correlationId !== payload.correlationId) ||
     ['verified', 'failed', 'expired'].includes(current.status)
   ) {
     return { accepted: false };
