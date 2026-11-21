@@ -17,7 +17,11 @@ const monitoredPages = new WeakSet<Page>();
 const reportedChallenges = new WeakMap<Page, Set<string>>();
 
 export function monitorCaptchaOnPage(page: Page, correlationId?: string): void {
-  if (process.env.CAPTCHA_MONITOR_ENABLED !== 'true' || monitoredPages.has(page)) return;
+  if (
+    process.env.CAPTCHA_MONITOR_ENABLED !== 'true' ||
+    !correlationId ||
+    monitoredPages.has(page)
+  ) return;
   monitoredPages.add(page);
   reportedChallenges.set(page, new Set());
   let inspecting = false;
@@ -78,19 +82,8 @@ export function monitorCaptchaOnPage(page: Page, correlationId?: string): void {
         })),
       ]);
       if (!pageUrl || pageUrl === 'about:blank') return;
-      const allowedOrigins = (process.env.CAPTCHA_ALLOWED_ORIGINS || '')
-        .split(',')
-        .map((value) => value.trim())
-        .filter(Boolean)
-        .map((value) => {
-          try {
-            const parsed = new URL(value);
-            return parsed.protocol === 'https:' ? parsed.origin : '';
-          } catch {
-            return '';
-          }
-        });
-      if (!allowedOrigins.includes(new URL(pageUrl).origin)) return;
+      // The Browserless API token authenticates the Rejekt caller. A trackingId
+      // is required so only explicitly correlated Rejekt jobs enter this flow.
 
       const detection = detectChallenge({
         url: pageUrl,
@@ -140,6 +133,7 @@ async function notifyReviewWebhook(session: {
   id: string;
   status: string;
   pageUrl: string;
+  pageOrigin: string;
   providers: string[];
   expiresAt: string;
   correlationId?: string;
@@ -155,6 +149,7 @@ async function notifyReviewWebhook(session: {
       correlationId: session.correlationId,
       status: session.status,
       pageUrl: session.pageUrl,
+      pageOrigin: session.pageOrigin,
       providers: session.providers,
       expiresAt: session.expiresAt,
     });
