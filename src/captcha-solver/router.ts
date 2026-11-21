@@ -13,6 +13,20 @@ export class CaptchaOrchestrator {
       return null;
     }
 
+    const allowedOrigins = (process.env.CAPTCHA_ALLOWED_ORIGINS || '')
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .map((value) => {
+        try {
+          const parsed = new URL(value);
+          return parsed.protocol === 'https:' ? parsed.origin : '';
+        } catch {
+          return '';
+        }
+      });
+    if (!allowedOrigins.includes(origin)) return null;
+
     const safeUrl = new URL(challenge.pageUrl);
     safeUrl.search = '';
     safeUrl.hash = '';
