@@ -13,16 +13,14 @@ third-party anti-bot protections or manufacture challenge tokens.
 
 ## Runtime configuration
 
-Set these variables in the deployment environment. Monitoring remains inactive unless it is explicitly enabled and the Browserless page request includes a Rejekt `trackingId`:
+Set these variables in the deployment environment. Monitoring remains inactive unless it is explicitly enabled and the authenticated Browserless session includes a Rejekt `trackingId`.
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `CAPTCHA_MONITOR_ENABLED` | Yes | Set to `true` to monitor newly created pages |
-| `CAPTCHA_ALLOWED_ORIGINS` | Yes | Comma-separated exact HTTPS origins for sites you own or administer; pages outside this list are ignored |
 | `CAPTCHA_CALLBACK_SECRET` | For callbacks | High-entropy secret shared with your site-owned verification service |
 | `CAPTCHA_REVIEW_WEBHOOK_URL` | Optional | HTTPS endpoint notified when a session needs human review |
 
-Example allowlist: `CAPTCHA_ALLOWED_ORIGINS=https://forms.example.com,https://portal.example.com`.
 Do not commit secrets to the repository. Keep Browserless behind TLS and restrict
 the management API to trusted callers. The session and callback endpoints use
 the Browserless API token in addition to the signed callback check.
