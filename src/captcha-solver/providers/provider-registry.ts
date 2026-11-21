@@ -1,4 +1,4 @@
 export {
-  CaptchaAdapterRegistry,
-  captchaAdapterRegistry,
+  CaptchaAdapterRegistry as ProviderRegistry,
+  captchaAdapterRegistry as providerRegistry,
 } from '../registry.js';
