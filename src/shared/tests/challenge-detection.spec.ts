@@ -48,6 +48,28 @@ describe('challenge detection', () => {
     expect(result.requiresHumanReview).to.equal(true);
   });
 
+  it('detects providers from script and iframe URLs', () => {
+    const result = detectChallenge({
+      scriptUrls: ['https://smartcaptcha.yandexcloud.net/captcha.js'],
+      iframeUrls: ['https://geo.captcha-delivery.com/captcha/'],
+    });
+    expect(result.providers).to.include.members(['yandex', 'datadome']);
+  });
+
+  it('detects native CAPTCHA fields without reading their values', () => {
+    const result = detectChallenge({
+      selectors: ['DIV data-sitekey'],
+      formFields: ['captcha_response text'],
+    });
+    expect(result.detected).to.equal(true);
+    expect(result.providers).to.include('generic');
+  });
+
+  it('does not treat a 403 or 429 status alone as a CAPTCHA', () => {
+    const result = detectChallenge({ responseStatus: 403 });
+    expect(result.detected).to.equal(false);
+  });
+
   it('does not flag an ordinary page', () => {
     const result = detectChallenge({
       url: 'https://example.com/jobs',
