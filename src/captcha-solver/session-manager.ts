@@ -37,9 +37,10 @@ export class CaptchaSessionManager extends EventEmitter {
     const session = this.sessions.get(id);
     if (!session) return undefined;
     if (Date.parse(session.expiresAt) <= Date.now()) {
-      return session.status === 'expired'
-        ? this.publicView(session)
-        : this.transition(id, 'expired', 'Session TTL elapsed');
+      if (['verified', 'failed', 'expired'].includes(session.status)) {
+        return this.publicView(session);
+      }
+      return this.transition(id, 'expired', 'Session TTL elapsed');
     }
     return this.publicView(session);
   }
