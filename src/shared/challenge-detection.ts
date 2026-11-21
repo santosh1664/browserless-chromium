@@ -301,7 +301,7 @@ export function detectChallenge(
   add('form field names', input.formFields?.join('\n'));
   const challengeHeaders = Object.entries(input.headers || {}).filter(
     ([key]) =>
-      /^(?:cf-mitigated|x-datadome|x-akamai[^-]*|x-iinfo|x-captcha[^-]*|x-waf[^-]*)$/i.test(
+      /^(?:cf-mitigated|x-(?:datadome|akamai|iinfo|captcha|waf)(?:-|$))/i.test(
         key,
       ),
   );
@@ -309,7 +309,7 @@ export function detectChallenge(
     'challenge response headers',
     challengeHeaders
       .map(([key, value]) => `${key}: ${value.slice(0, 500)}`)
-      .join('\\n'),
+      .join('\n'),
   );
   if (input.responseStatus === 403 || input.responseStatus === 429) {
     add('HTTP status', String(input.responseStatus));
