@@ -71,6 +71,18 @@ export function monitorCaptchaOnPage(page: Page): void {
         })),
       ]);
       if (!pageUrl || pageUrl === 'about:blank') return;
+      const allowedOrigins = (process.env.CAPTCHA_ALLOWED_ORIGINS || '')
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean)
+        .map((value) => {
+          try {
+            return new URL(value).origin;
+          } catch {
+            return '';
+          }
+        });
+      if (!allowedOrigins.includes(new URL(pageUrl).origin)) return;
 
       const detection = detectChallenge({
         url: pageUrl,
