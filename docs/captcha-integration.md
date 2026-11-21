@@ -5,14 +5,15 @@ solver implementations are intentionally not included in this repository.
 
 ## Scope and safety
 
-The integration is intended for sites you own or administer, using their
-documented challenge-verification APIs. It does not automate interactions with
-third-party anti-bot challenges, manufacture challenge tokens, or submit forms.
-An unhandled challenge is paused for human review.
+The integration is initiated by authenticated Browserless sessions carrying a
+Rejekt `trackingId`. It is not restricted to a hardcoded list of destination
+domains. It classifies challenges and creates a human-review handoff when no
+configured, documented verification adapter is available. It does not bypass
+third-party anti-bot protections or manufacture challenge tokens.
 
 ## Runtime configuration
 
-Set these variables in the deployment environment. Monitoring remains inactive unless it is explicitly enabled and an origin allowlist is configured:
+Set these variables in the deployment environment. Monitoring remains inactive unless it is explicitly enabled and the Browserless page request includes a Rejekt `trackingId`:
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
@@ -29,11 +30,12 @@ the Browserless API token in addition to the signed callback check.
 ## Flow
 
 1. The Browserless page hook installs a lightweight navigation monitor.
-2. Pass the caller's application/job identifier as Browserless' `trackingId`
-   query parameter. Browserless carries it through as `correlationId` in the
-   session and review webhook. After a main-frame navigation, the monitor reads the URL, title, visible
-   text, script and iframe URLs, CAPTCHA-related element attributes, and form
-   field names. It does not read input values, cookies, or challenge tokens.
+2. Rejekt's worker passes the application/job identifier as Browserless'
+   `trackingId` query parameter. Browserless carries it through as
+   `correlationId` in the session and review webhook. After a main-frame
+   navigation, the monitor reads the URL, title, visible text, script and iframe
+   URLs, CAPTCHA-related element attributes, and form field names. It does not
+   read input values, cookies, or challenge tokens.
 3. The detector classifies known provider markers and records evidence labels.
 4. The orchestrator looks for a registered provider adapter.
 5. An adapter may call a documented verifier for a site you administer.
@@ -82,8 +84,8 @@ The callback body is JSON with these fields:
 
 Sign the exact compact JSON body with HMAC-SHA256 using
 `CAPTCHA_CALLBACK_SECRET` and send the lowercase hexadecimal digest in
-`x-captcha-signature`. The callback should include the stored `pageOrigin` and may include
-`correlationId` for caller-side correlation. The callback is rejected if the signature is invalid,
+`x-captcha-signature`. The callback must include the stored `pageOrigin` and matching `correlationId`.
+The callback is rejected if the signature is invalid,
 the session is unknown/expired, or the page origin does not match the stored
 session origin.
 
