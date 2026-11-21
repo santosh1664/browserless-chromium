@@ -75,7 +75,7 @@ The callback body is JSON with these fields:
 ```json
 {
   "sessionId": "session UUID",
-  "correlationId": "optional caller job/application ID",
+  "correlationId": "Rejekt application/job ID",
   "status": "verified",
   "pageOrigin": "https://your-owned-site.example",
   "reference": "optional verifier reference"
