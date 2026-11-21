@@ -12,6 +12,14 @@ export class CaptchaSessionManager extends EventEmitter {
     ttlMs = DEFAULT_TTL_MS,
   ): CaptchaSession {
     const now = new Date();
+    for (const [id, existing] of this.sessions) {
+      if (Date.parse(existing.expiresAt) <= now.getTime()) this.sessions.delete(id);
+    }
+    while (this.sessions.size >= 2000) {
+      const oldest = this.sessions.keys().next().value;
+      if (!oldest) break;
+      this.sessions.delete(oldest);
+    }
     const session: CaptchaSession = {
       ...input,
       id: randomUUID(),
@@ -29,7 +37,9 @@ export class CaptchaSessionManager extends EventEmitter {
     const session = this.sessions.get(id);
     if (!session) return undefined;
     if (Date.parse(session.expiresAt) <= Date.now()) {
-      return this.transition(id, 'expired', 'Session TTL elapsed');
+      return session.status === 'expired'
+        ? this.publicView(session)
+        : this.transition(id, 'expired', 'Session TTL elapsed');
     }
     return this.publicView(session);
   }
