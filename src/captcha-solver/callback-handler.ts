@@ -31,7 +31,11 @@ export function handleCaptchaCallback(
   }
 
   const current = captchaSessionManager.get(payload.sessionId);
-  if (!current || current.pageOrigin !== payload.pageOrigin) {
+  if (
+    !current ||
+    current.pageOrigin !== payload.pageOrigin ||
+    ['verified', 'failed', 'expired'].includes(current.status)
+  ) {
     return { accepted: false };
   }
 
