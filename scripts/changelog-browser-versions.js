@@ -9,19 +9,14 @@
 // It runs one Chromium image container and, inside it:
 //   - reads puppeteer-core + the pinned playwright-core versions from
 //     package.json (the same logic the GET /meta route uses), and
-//   - launches every browser via playwright-core and reads browser.version()
-//     straight from the running Chromium binary.
+//   - launches Chromium via playwright-core and reads browser.version()
+//     straight from the running binary.
 //
 // Usage:
 //   node scripts/changelog-browser-versions.js [--image <ref>] [--platform <p>] [--no-pull]
 //
 // Defaults: --image ghcr.io/browserless/chromium:latest  --platform linux/amd64
 //
-// Chrome and Edge are linux/amd64 only (their stable channels are not built for
-// arm64); chromium/firefox/webkit are pinned by Playwright and identical across
-// architectures. Running the amd64 image therefore yields the full block; an
-// arm64 run (--platform linux/arm64, needs qemu/binfmt locally) reconfirms the
-// shared three and reports Chrome/Edge as unavailable.
 
 import { spawnSync } from 'node:child_process';
 
@@ -136,7 +131,7 @@ const tick = (version) => (version ? `\`${version}\`` : '`<unavailable>`');
 // alongside "Features"/"Bug Fixes" rather than folding it into the previous
 // section's bullet list.
 const block = [
-  '### Supported Libraries & Browser',
+  '### Supported Libraries & Chromium',
   '',
   `- puppeteer-core: \`${data.puppeteer}\``,
   `- playwright-core: ${sentenceList(data.playwright)}`,
