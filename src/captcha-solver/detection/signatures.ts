@@ -8,4 +8,4 @@ export {
   type ChallengeDetectionResult,
   type ChallengeProvider,
   type ChallengeEvidence,
-} from '../../../shared/challenge-detection.js';
+} from '../../shared/challenge-detection.js';
