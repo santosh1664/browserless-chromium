@@ -105,11 +105,14 @@ export function monitorCaptchaOnPage(page: Page, correlationId?: string): void {
       reported.add(challengeKey);
       reportedChallenges.set(page, reported);
 
+      const safeCorrelationId = correlationId
+        ?.replace(/[^a-zA-Z0-9._:-]/g, '')
+        .slice(0, 128);
       const challenge: CaptchaChallenge = {
         page,
         pageUrl,
         pageTitle,
-        correlationId,
+        ...(safeCorrelationId ? { correlationId: safeCorrelationId } : {}),
         providers: detection.providers,
         evidence: detection.evidence,
         detectedAt: new Date().toISOString(),
