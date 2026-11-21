@@ -44,8 +44,7 @@ describe('challenge detection', () => {
 
   it('detects Akamai Bot Manager indicators', () => {
     const result = detectChallenge({
-      scriptUrls: ['https://example.com/akam/13/abc/sd.js'],
-      cookieNames: ['_abck'],
+      resourceUrls: ['https://example.com/akam/13/captcha/challenge.js'],
     });
 
     expect(result.providers).to.include('akamai');
@@ -53,7 +52,7 @@ describe('challenge detection', () => {
 
   it('detects HUMAN / PerimeterX indicators', () => {
     const result = detectChallenge({
-      scriptUrls: ['https://client.perimeterx.net/PXabc/main.min.js'],
+      scriptUrls: ['https://client.perimeterx.net/PXabc/captcha.js'],
     });
 
     expect(result.providers).to.include('perimeterx');
@@ -69,7 +68,7 @@ describe('challenge detection', () => {
 
   it('detects Kasada indicators', () => {
     const result = detectChallenge({
-      resourceUrls: ['https://example.com/kpsdk/ips.js'],
+      resourceUrls: ['https://example.com/kpsdk/captcha.js'],
     });
 
     expect(result.providers).to.include('kasada');
