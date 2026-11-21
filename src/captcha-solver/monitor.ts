@@ -77,7 +77,8 @@ export function monitorCaptchaOnPage(page: Page): void {
         .filter(Boolean)
         .map((value) => {
           try {
-            return new URL(value).origin;
+            const parsed = new URL(value);
+            return parsed.protocol === 'https:' ? parsed.origin : '';
           } catch {
             return '';
           }
