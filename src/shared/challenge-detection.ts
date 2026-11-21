@@ -45,8 +45,6 @@ export interface ChallengeDetectionInput {
   scriptUrls?: string[];
   iframeUrls?: string[];
   resourceUrls?: string[];
-  /** Names only. Cookie values must never be passed to this detector. */
-  cookieNames?: string[];
   selectors?: string[];
   formFields?: string[];
   headers?: Record<string, string>;
@@ -299,7 +297,6 @@ export function detectChallenge(
   add('scripts', input.scriptUrls?.join('\n'));
   add('iframes', input.iframeUrls?.join('\n'));
   add('resources', input.resourceUrls?.join('\n'));
-  add('cookie names', input.cookieNames?.join('\n'));
   add('DOM selectors', input.selectors?.join('\n'));
   add('form field names', input.formFields?.join('\n'));
   add(
