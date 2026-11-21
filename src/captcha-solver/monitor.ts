@@ -17,13 +17,13 @@ export function monitorCaptchaOnPage(page: Page): void {
     if (inspecting || page.isClosed()) return;
     inspecting = true;
     try {
-      const [pageUrl, pageTitle, visibleText] = await Promise.all([
+      const [pageUrl, pageTitle, pageSignals] = await Promise.all([
         Promise.resolve(page.url()),
         page.title().catch(() => ''),
-        page.evaluate(() => (document.body?.innerText || '').slice(0, 12000)).catch(() => ''),
+        page.evaluate(() => ({\n          text: (document.body?.innerText || '').slice(0, 12000),\n          scriptUrls: Array.from(document.scripts).map((item) => item.src).filter(Boolean).slice(0, 100),\n          iframeUrls: Array.from(document.querySelectorAll('iframe')).map((item) => item.src).filter(Boolean).slice(0, 50),\n          selectors: Array.from(document.querySelectorAll('[class*=\"captcha\" i], [id*=\"captcha\" i], [class*=\"challenge\" i], [id*=\"challenge\" i], [data-sitekey]')).slice(0, 60).map((item) => [item.tagName, (item as HTMLElement).id, typeof (item as HTMLElement).className === 'string' ? (item as HTMLElement).className : '', item.getAttribute('data-sitekey') ? 'data-sitekey' : ''].filter(Boolean).join(' ')),\n          formFields: Array.from(document.querySelectorAll('input, textarea')).map((item) => [(item as HTMLInputElement).name, (item as HTMLInputElement).id, (item as HTMLInputElement).type].filter(Boolean).join(' ')).filter(Boolean).slice(0, 100),\n        })).catch(() => ({ text: '', scriptUrls: [], iframeUrls: [], selectors: [], formFields: [] })),
       ]);
       if (!pageUrl || pageUrl === 'about:blank') return;
-      const detection = detectChallenge({ url: pageUrl, title: pageTitle, text: visibleText });
+      const detection = detectChallenge({ url: pageUrl, title: pageTitle, ...pageSignals });
       if (!detection.detected) return;
 
       const challenge: CaptchaChallenge = {
