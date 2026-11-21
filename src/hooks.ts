@@ -29,7 +29,10 @@ export class Hooks extends EventEmitter {
   }
 
   page(args: PageHook): Promise<unknown> {
-    monitorCaptchaOnPage(args.page);
+    monitorCaptchaOnPage(
+      args.page,
+      args.meta.searchParams.get('trackingId') || undefined,
+    );
     return pageHook(args);
   }
 
