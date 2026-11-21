@@ -20,6 +20,7 @@ export * from './token.js';
 export * from './types.js';
 export * from './utils.js';
 export * from './webhooks.js';
+export * from './captcha-solver/index.js';
 export * from './browsers/index.js';
 export * from './browsers/browsers.cdp.js';
 export * from './browsers/browsers.playwright.js';
