@@ -42,7 +42,11 @@ jobs:
       matrix:
         include:
           - { platform: linux/amd64, runner: ubuntu-26.04, pair: linux-amd64 }
-          - { platform: linux/arm64, runner: ubuntu-26.04-arm, pair: linux-arm64 }
+          - {
+              platform: linux/arm64,
+              runner: ubuntu-26.04-arm,
+              pair: linux-arm64,
+            }
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -101,6 +105,7 @@ jobs:
       - name: Publish base manifest
         working-directory: ${{ runner.temp }}/digests
         run: |
+          # shellcheck disable=SC2046  # intentional word-splitting: one arg per digest
           docker buildx imagetools create -t "${BASE_IMAGE}:${TAG}" \
             $(printf "${BASE_IMAGE}@sha256:%s " *)
       - run: docker buildx imagetools inspect "${BASE_IMAGE}:${TAG}"
@@ -182,6 +187,7 @@ jobs:
       - name: Publish Chromium manifest
         working-directory: ${{ runner.temp }}/digests
         run: |
+          # shellcheck disable=SC2046  # intentional word-splitting: one arg per digest
           docker buildx imagetools create -t "${CHROMIUM_IMAGE}:${TAG}" \
             $(printf "${CHROMIUM_IMAGE}@sha256:%s " *)
       - run: docker buildx imagetools inspect "${CHROMIUM_IMAGE}:${TAG}"
