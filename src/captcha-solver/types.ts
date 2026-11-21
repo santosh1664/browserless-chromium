@@ -17,6 +17,7 @@ export interface CaptchaChallenge {
   page: Page;
   pageUrl: string;
   pageTitle: string;
+  correlationId?: string;
   providers: string[];
   evidence: CaptchaEvidence[];
   detectedAt: string;
@@ -27,6 +28,7 @@ export interface CaptchaSession {
   status: CaptchaSessionStatus;
   pageUrl: string;
   pageOrigin: string;
+  correlationId?: string;
   providers: string[];
   evidence: CaptchaEvidence[];
   createdAt: string;
