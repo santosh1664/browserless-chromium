@@ -32,7 +32,7 @@
     "watch": "node scripts/watch.js",
     "install:adblock": "node scripts/install-adblock.js",
     "install:debugger": "node scripts/install-debugger.js",
-    "install:browsers": "node node_modules/playwright-core/cli.js install chromium firefox webkit msedge",
+    "install:browsers": "node node_modules/playwright-core/cli.js install chromium",
     "install:dev": "npm run install:browsers && npm run install:debugger",
     "lint": "cross-env eslint . --fix",
     "prepack": "npm run build:dev",

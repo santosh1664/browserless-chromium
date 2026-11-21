@@ -141,7 +141,7 @@ export const installDependencies = async (
 
 export const installBrowsers = async (workingDirectory: string) => {
   await waitForCommand(
-    './node_modules/playwright-core/cli.js install --with-deps chromium firefox webkit msedge',
+    './node_modules/playwright-core/cli.js install --with-deps chromium',
     workingDirectory,
   );
 };

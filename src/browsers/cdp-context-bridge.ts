@@ -28,7 +28,14 @@ export function bridgeCDPContexts(
   const maxPayload =
     Config.validateCdpMaxInboundPayload(configuredMaxPayload) ??
     100 * 1024 * 1024;
-  const server = new WebSocketServer({ noServer: true, maxPayload });
+  // Leave room for the transport's bookkeeping bytes. The application-level
+  // queue below is responsible for enforcing the configured payload limit and
+  // returning the expected 1009 close code; ws must not preempt it with an
+  // abnormal 1006 close when the JSON envelope is slightly larger.
+  const server = new WebSocketServer({
+    noServer: true,
+    maxPayload: maxPayload + QUEUED_FRAME_OVERHEAD,
+  });
   // One exact-limit message fits, including bookkeeping. This bounds queued
   // transport bytes, not the receiver, parsed JSON, browser memory, or RSS.
   const maxQueuedBytes = maxPayload + QUEUED_FRAME_OVERHEAD;

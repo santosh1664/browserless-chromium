@@ -320,6 +320,7 @@ class BasePlaywright extends EventEmitter {
       // upgrade (e.g. bad `Sec-WebSocket-Key`). Without a socket-level
       // backstop the Promise would hang, pinning the concurrency slot.
       let settled = false;
+      let disconnected = false;
       let clientWS: WebSocket | undefined;
       let upstreamWS: WebSocket | undefined;
       // Drops the bridge listeners (and the frame buffers their closures
@@ -349,8 +350,14 @@ class BasePlaywright extends EventEmitter {
       // the upstream-handler chain. Resolve rather than reject so a
       // disconnected client isn't treated as a server fault. Aborted
       // upgrades still surface via the paired `'close'` backstop.
-      socket.once('close', () => finish());
-      socket.once('error', () => finish());
+      socket.once('close', () => {
+        disconnected = true;
+        finish();
+      });
+      socket.once('error', () => {
+        disconnected = true;
+        finish();
+      });
 
       BasePlaywright.wsServer.handleUpgrade(
         req as unknown as IncomingMessage,
@@ -430,7 +437,14 @@ class BasePlaywright extends EventEmitter {
             Config.prototype.preparePlaywrightContextOptions;
           const cdpPolicy = this.config.getCDPContextPolicy(req);
           const flushPending = async () => {
-            if (processing || !upstreamReady || blocked || settled) return;
+            if (
+              processing ||
+              !upstreamReady ||
+              blocked ||
+              settled ||
+              disconnected
+            )
+              return;
             processing = true;
             try {
               while (pending.length && !blocked && !settled) {
@@ -473,7 +487,13 @@ class BasePlaywright extends EventEmitter {
                     await cdpPolicy(command.params ?? {});
                   }
                 }
-                if (blocked || settled) return;
+                if (
+                  blocked ||
+                  settled ||
+                  disconnected ||
+                  clientWS?.readyState !== WebSocket.OPEN
+                )
+                  return;
                 upstreamWS!.send(message.data, { binary: message.isBinary });
                 pendingBytes -= message.bytes;
                 pending.shift();
@@ -648,7 +668,16 @@ class BasePlaywright extends EventEmitter {
             }
           });
 
-          ws.on('close', () => finish());
+          ws.on('close', () => {
+            // A client can disconnect while context admission is awaiting an
+            // async policy. Stop the pending flush before that policy
+            // resolves; otherwise the frame that was being checked can be
+            // forwarded after the client is already gone.
+            blocked = true;
+            pending.length = 0;
+            pendingBytes = 0;
+            finish();
+          });
           upstreamWS.on('close', () => finish());
           ws.on('error', (err) => {
             // Routine client disconnects (TCP RST) emit `'error'` here;

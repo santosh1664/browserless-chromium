@@ -263,7 +263,7 @@ export class Browserless extends EventEmitter {
 
   protected async loadInstalledBinaries(): Promise<void> {
     const pwVersions = this.config.getPwVersions();
-    const browserTypes = ['chromium', 'firefox', 'webkit'] as const;
+    const browserTypes = ['chromium'] as const;
 
     await Promise.all(
       browserTypes.map(async (browserType) => {
