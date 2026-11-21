@@ -33,6 +33,7 @@ export class CaptchaOrchestrator {
     const session = captchaSessionManager.create({
       pageUrl: safeUrl.href,
       pageOrigin: origin,
+      ...(challenge.correlationId ? { correlationId: challenge.correlationId } : {}),
       providers: [...new Set(challenge.providers)],
       evidence: challenge.evidence,
     });
