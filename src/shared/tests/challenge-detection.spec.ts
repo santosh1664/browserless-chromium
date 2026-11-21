@@ -130,6 +130,54 @@ describe('challenge detection', () => {
     expect(result.providers).to.include('tencent');
   });
 
+  it('detects Yandex SmartCaptcha', () => {
+    const result = detectChallenge({
+      scriptUrls: ['https://smartcaptcha.yandexcloud.net/captcha.js'],
+    });
+
+    expect(result.providers).to.include('yandex');
+  });
+
+  it('detects Alibaba Cloud CAPTCHA', () => {
+    const result = detectChallenge({
+      scriptUrls: ['https://captcha.aliyun.com/captcha.js'],
+    });
+
+    expect(result.providers).to.include('aliyun');
+  });
+
+  it('detects MTCaptcha', () => {
+    const result = detectChallenge({
+      scriptUrls: ['https://service.mtcaptcha.com/mtcv1/client/mtcaptcha.min.js'],
+    });
+
+    expect(result.providers).to.include('mtcaptcha');
+  });
+
+  it('detects BotDetect CAPTCHA', () => {
+    const result = detectChallenge({
+      html: '<img src="/BotDetectCaptcha.ashx?get=image" />',
+    });
+
+    expect(result.providers).to.include('botdetect');
+  });
+
+  it('detects CAPTCHA.com', () => {
+    const result = detectChallenge({
+      scriptUrls: ['https://captcha.com/widget.js'],
+    });
+
+    expect(result.providers).to.include('captcha-com');
+  });
+
+  it('detects Securimage native CAPTCHA', () => {
+    const result = detectChallenge({
+      html: '<img src="/securimage_show.php" />',
+    });
+
+    expect(result.providers).to.include('securimage');
+  });
+
   it('detects Zoho native CAPTCHA indicators', () => {
     const result = detectChallenge({
       html: '<div id="zohocaptcha"></div>',
