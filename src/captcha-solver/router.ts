@@ -13,8 +13,11 @@ export class CaptchaOrchestrator {
       return null;
     }
 
+    const safeUrl = new URL(challenge.pageUrl);
+    safeUrl.search = '';
+    safeUrl.hash = '';
     const session = captchaSessionManager.create({
-      pageUrl: challenge.pageUrl,
+      pageUrl: safeUrl.href,
       pageOrigin: origin,
       providers: [...new Set(challenge.providers)],
       evidence: challenge.evidence,
