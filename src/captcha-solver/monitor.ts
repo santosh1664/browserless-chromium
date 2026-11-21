@@ -16,7 +16,7 @@ captchaSessionManager.on('updated', (session) => {
 const monitoredPages = new WeakSet<Page>();
 const reportedChallenges = new WeakMap<Page, Set<string>>();
 
-export function monitorCaptchaOnPage(page: Page): void {
+export function monitorCaptchaOnPage(page: Page, correlationId?: string): void {
   if (process.env.CAPTCHA_MONITOR_ENABLED !== 'true' || monitoredPages.has(page)) return;
   monitoredPages.add(page);
   reportedChallenges.set(page, new Set());
@@ -109,6 +109,7 @@ export function monitorCaptchaOnPage(page: Page): void {
         page,
         pageUrl,
         pageTitle,
+        correlationId,
         providers: detection.providers,
         evidence: detection.evidence,
         detectedAt: new Date().toISOString(),
@@ -138,6 +139,7 @@ async function notifyReviewWebhook(session: {
   pageUrl: string;
   providers: string[];
   expiresAt: string;
+  correlationId?: string;
 }): Promise<void> {
   const endpoint = process.env.CAPTCHA_REVIEW_WEBHOOK_URL;
   const secret = process.env.CAPTCHA_CALLBACK_SECRET;
@@ -147,6 +149,7 @@ async function notifyReviewWebhook(session: {
     const { signCaptchaCallback } = await import('./verification.js');
     const payload = JSON.stringify({
       sessionId: session.id,
+      correlationId: session.correlationId,
       status: session.status,
       pageUrl: session.pageUrl,
       providers: session.providers,
