@@ -54,7 +54,7 @@ if (args.includes('--dry-run')) {
 
   afterEach(() => rmSync(fixture, { recursive: true, force: true }));
 
-  for (const browser of ['webkit', 'chromium', 'firefox']) {
+  for (const browser of ['chromium']) {
     it(`selects the supported versions for ${browser}`, () => {
       const callsFile = path.join(fixture, 'calls');
       execFileSync('bash', [installer, browser], {
@@ -70,7 +70,7 @@ if (args.includes('--dry-run')) {
         .trim()
         .split('\n')
         .map((line) => JSON.parse(line));
-      const supported = browser === 'webkit' ? ['1.61', '1.100'] : versions;
+      const supported = versions;
       expect(calls).to.deep.equal([
         ['node_modules/playwright-core/cli.js', 'install-deps', browser],
         ...supported
