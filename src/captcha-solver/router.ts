@@ -1,22 +1,22 @@
-import { detectChallenge } from '../shared/challenge-detection.js';
 import { captchaAdapterRegistry } from './registry.js';
 import { captchaSessionManager } from './session-manager.js';
 import type { CaptchaChallenge, CaptchaSession } from './types.js';
 
 export class CaptchaOrchestrator {
   async inspect(challenge: CaptchaChallenge): Promise<CaptchaSession | null> {
-    const detection = detectChallenge({
-      url: challenge.pageUrl,
-      title: challenge.pageTitle,
-      text: challenge.evidence.map((item) => item.signals.join(' ')).join(' '),
-    });
-    if (!detection.detected && challenge.providers.length === 0) return null;
+    if (challenge.providers.length === 0) return null;
 
-    const origin = new URL(challenge.pageUrl).origin;
+    let origin: string;
+    try {
+      origin = new URL(challenge.pageUrl).origin;
+    } catch {
+      return null;
+    }
+
     const session = captchaSessionManager.create({
       pageUrl: challenge.pageUrl,
       pageOrigin: origin,
-      providers: [...new Set(challenge.providers.length ? challenge.providers : detection.providers)],
+      providers: [...new Set(challenge.providers)],
       evidence: challenge.evidence,
     });
 
@@ -34,7 +34,7 @@ export class CaptchaOrchestrator {
           ) || session;
         }
       } catch {
-        // Adapter errors are deliberately reduced to a safe review reason.
+        // Adapter errors are reduced to a safe human-review outcome.
       }
     }
 
