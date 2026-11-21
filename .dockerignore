@@ -1,7 +1,7 @@
 # Build-context excludes. Keep in sync with what docker/*/Dockerfile COPY:
 # fonts, package.json, package-lock.json, assets, bin, extensions, external,
-# scripts, static, src, tsconfig.json, CHANGELOG.md, LICENSE, NOTICE.txt,
-# README.md. Nothing below is consumed by those COPY steps, so excluding it
+# scripts, static, src, and tsconfig.json. Nothing below is consumed by those
+# COPY steps, so excluding it
 # never changes image contents -- it only shrinks the context sent to the
 # builder (the bulk of which is node_modules + .git).
 

@@ -4,7 +4,6 @@ FROM ubuntu:resolute@sha256:d66b366dac61b575bee2aef07e9c26e8070096fbe84a3d4d3eb0
 
 LABEL org.opencontainers.image.source=https://github.com/browserless/browserless
 
-# Chrome/Edge vendor installers invoke apt without --no-install-recommends.
 # Apply the minimal-package policy before any apt usage, including child images.
 RUN printf 'APT::Install-Recommends "false";\n' > /etc/apt/apt.conf.d/99browserless
 
@@ -105,6 +104,6 @@ COPY static static
 
 RUN node scripts/install-playwright-ffmpeg.js
 
-COPY CHANGELOG.md LICENSE NOTICE.txt README.md tsconfig.json ./
+COPY tsconfig.json ./
 
 EXPOSE $PORT

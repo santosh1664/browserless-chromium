@@ -12,20 +12,5 @@ jobs:
   leak-check:
     uses: ./.github/workflows/leak-check.yml # zizmor: ignore[self-repository] -- reusable workflow at this commit
 
-  test-chrome:
-    uses: ./.github/workflows/docker-chrome.yml # zizmor: ignore[self-repository] -- reusable workflow at this commit
-
   test-chromium:
     uses: ./.github/workflows/docker-chromium.yml # zizmor: ignore[self-repository] -- reusable workflow at this commit
-
-  test-edge:
-    uses: ./.github/workflows/docker-edge.yml # zizmor: ignore[self-repository] -- reusable workflow at this commit
-
-  test-firefox:
-    uses: ./.github/workflows/docker-firefox.yml # zizmor: ignore[self-repository] -- reusable workflow at this commit
-
-  test-webkit:
-    uses: ./.github/workflows/docker-webkit.yml # zizmor: ignore[self-repository] -- reusable workflow at this commit
-
-  test-multi:
-    uses: ./.github/workflows/docker-multi.yml # zizmor: ignore[self-repository] -- reusable workflow at this commit

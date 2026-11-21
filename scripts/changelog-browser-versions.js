@@ -6,23 +6,17 @@
 // a built browserless image, so the versions in a release reflect what actually
 // shipped rather than a hand-typed guess.
 //
-// It runs ONE container off the multi image and, inside it:
+// It runs one Chromium image container and, inside it:
 //   - reads puppeteer-core + the pinned playwright-core versions from
 //     package.json (the same logic the GET /meta route uses), and
-//   - launches every browser via playwright-core and reads browser.version()
-//     straight from the running binary (chromium, the chrome + msedge stable
-//     channels, firefox, and webkit).
+//   - launches Chromium via playwright-core and reads browser.version()
+//     straight from the running binary.
 //
 // Usage:
 //   node scripts/changelog-browser-versions.js [--image <ref>] [--platform <p>] [--no-pull]
 //
-// Defaults: --image ghcr.io/browserless/multi:latest  --platform linux/amd64
+// Defaults: --image ghcr.io/browserless/chromium:latest  --platform linux/amd64
 //
-// Chrome and Edge are linux/amd64 only (their stable channels are not built for
-// arm64); chromium/firefox/webkit are pinned by Playwright and identical across
-// architectures. Running the amd64 image therefore yields the full block; an
-// arm64 run (--platform linux/arm64, needs qemu/binfmt locally) reconfirms the
-// shared three and reports Chrome/Edge as unavailable.
 
 import { spawnSync } from 'node:child_process';
 
@@ -32,7 +26,7 @@ const getFlag = (name, fallback) => {
   return i !== -1 && args[i + 1] ? args[i + 1] : fallback;
 };
 
-const image = getFlag('--image', 'ghcr.io/browserless/multi:latest');
+const image = getFlag('--image', 'ghcr.io/browserless/chromium:latest');
 const platform = getFlag('--platform', 'linux/amd64');
 const pull = !args.includes('--no-pull');
 
@@ -40,7 +34,7 @@ const pull = !args.includes('--no-pull');
 // Prints a single JSON line to stdout; any diagnostics go to stderr so they
 // don't pollute it.
 const PROBE = `
-import { chromium, firefox, webkit } from 'playwright-core';
+import { chromium } from 'playwright-core';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -78,10 +72,6 @@ const out = {
   puppeteer,
   playwright,
   chromium: await versionOf(chromium, sandbox),
-  chrome: await versionOf(chromium, { channel: 'chrome', ...sandbox }),
-  edge: await versionOf(chromium, { channel: 'msedge', ...sandbox }),
-  firefox: await versionOf(firefox, {}),
-  webkit: await versionOf(webkit, {}),
 };
 console.log(JSON.stringify(out));
 `;
@@ -136,37 +126,16 @@ const sentenceList = (items) => {
 };
 
 const tick = (version) => (version ? `\`${version}\`` : '`<unavailable>`');
-const amd64Only = (version) => `${tick(version)} (amd64 only)`;
-
-for (const [name, value] of [
-  ['Chromium', data.chromium],
-  ['Firefox', data.firefox],
-  ['Webkit', data.webkit],
-]) {
-  if (!value) console.error(`WARN: ${name} version unavailable.`);
-}
-if (!data.chrome)
-  console.error(
-    'WARN: Chrome version unavailable (expected on a non-amd64 image).',
-  );
-if (!data.edge)
-  console.error(
-    'WARN: Edge version unavailable (expected on a non-amd64 image).',
-  );
 
 // Emitted as its own `###` section so release-please's changelog renders it
 // alongside "Features"/"Bug Fixes" rather than folding it into the previous
 // section's bullet list.
 const block = [
-  '### Supported Libraries & Browsers',
+  '### Supported Libraries & Chromium',
   '',
   `- puppeteer-core: \`${data.puppeteer}\``,
   `- playwright-core: ${sentenceList(data.playwright)}`,
   `- Chromium: ${tick(data.chromium)}`,
-  `- Chrome: ${amd64Only(data.chrome)}`,
-  `- Firefox: ${tick(data.firefox)}`,
-  `- Webkit: ${tick(data.webkit)}`,
-  `- Edge: ${amd64Only(data.edge)}`,
 ].join('\n');
 
 process.stdout.write(block + '\n');
