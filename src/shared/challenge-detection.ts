@@ -67,7 +67,7 @@ const PROVIDER_RULES: ProviderRule[] = [
     provider: 'recaptcha',
     rules: [
       { label: 'Google reCAPTCHA script or frame', pattern: /(?:google\.com|recaptcha\.net)\/recaptcha|recaptcha\/api/i },
-      { label: 'reCAPTCHA widget marker', pattern: /g-recaptcha|grecaptcha|data-sitekey/i },
+      { label: 'reCAPTCHA widget marker', pattern: /g-recaptcha|grecaptcha/i },
       { label: 'reCAPTCHA response field', pattern: /g-recaptcha-response/i },
     ],
   },
